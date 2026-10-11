@@ -165,8 +165,43 @@
   }
   if (themeToggle && themeIcon) {
     applyTheme(root.getAttribute('data-theme') || 'dark');
-    themeToggle.addEventListener('click', () => {
+    themeToggle.addEventListener('click', async () => {
       const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      if (document.startViewTransition && !prefersReduced) {
+        const rect = themeToggle.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        const radius = Math.hypot(
+          Math.max(x, innerWidth - x),
+          Math.max(y, innerHeight - y)
+        );
+
+        root.classList.add('theme-transition');
+        const transition = document.startViewTransition(() => applyTheme(next));
+        localStorage.setItem('theme', next);
+
+        try {
+          await transition.ready;
+          root.animate(
+            {
+              clipPath: [
+                `circle(0px at ${x}px ${y}px)`,
+                `circle(${radius}px at ${x}px ${y}px)`
+              ]
+            },
+            {
+              duration: 700,
+              easing: 'cubic-bezier(.65,0,.35,1)',
+              pseudoElement: '::view-transition-new(root)'
+            }
+          );
+          await transition.finished;
+        } finally {
+          root.classList.remove('theme-transition');
+        }
+        return;
+      }
+
       applyTheme(next);
       localStorage.setItem('theme', next);
     });
