@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Services | Lumina Films</title>
+  <meta name="description" content="Explore the film production services offered by Lumina Films — from story development to distribution." />
+
+  <script>
+    document.documentElement.classList.add('js');
+    (function () {
+      var stored = localStorage.getItem('theme');
+      var theme = stored || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" href="logo/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <a href="#top" class="skip-link">Skip to content</a>
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"><span class="cursor-label">View</span></div>
+
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navDrawer">
+        <span class="menu-lines" aria-hidden="true">
+          <span></span>
+          <span></span>
+        </span>
+        <span class="menu-label" id="menuLabel">MENU</span>
+      </button>
+
+      <a href="index.html" class="nav-logo">
+        <img src="logo/logo.svg" alt="Lumina" style="height:120px;width:90;">
+      </a>
+
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" aria-pressed="false">
+        <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <div class="nav-drawer" id="navDrawer" aria-hidden="true">
+    <div class="nav-drawer-inner">
+      <a href="services.html" class="nav-drawer-link" aria-current="page">Services</a>
+      <a href="work.html" class="nav-drawer-link">Work</a>
+      <a href="about.html" class="nav-drawer-link">About</a>
+      <a href="contact.html" class="nav-drawer-link">Contact</a>
+    </div>
+  </div>
+
+  <div id="smooth-wrapper">
+    <div id="smooth-content">
+
+      <main id="top">
+        <section class="page-section">
+          <div class="page-wrap">
+            <header class="page-header">
+              <h1 class="page-title">Services</h1>
+            </header>
+
+            <div class="service-list">
+              <article class="service-row">
+                <h3 class="service-name">Story Development</h3>
+                <p class="service-desc">We shape your idea into a script, treatment, and pitch ready for financing.</p>
+                <span class="service-link">Explore →</span>
+                <img class="service-preview cine-grade" loading="lazy"
+                     alt="Screenwriter's desk with script pages and coffee"
+                     src="https://i.pinimg.com/736x/7a/68/0a/7a680ac50af5e9823cf6435c1ad5036a.jpg" />
+              </article>
+
+              <article class="service-row">
+                <h3 class="service-name">Pre-Production</h3>
+                <p class="service-desc">We plan casting, locations, budget, and schedule so every shooting day runs on time.</p>
+                <span class="service-link">Explore →</span>
+                <img class="service-preview cine-grade" loading="lazy"
+                     alt="Storyboard frames pinned to a production wall"
+                     src="https://i.pinimg.com/1200x/c1/6f/99/c16f99d280a50a16b22c5c8759ce069b.jpg" />
+              </article>
+
+              <article class="service-row">
+                <h3 class="service-name">Production</h3>
+                <p class="service-desc">Our crew captures your story with intentional direction, cinematography, lighting, and clean sound.</p>
+                <span class="service-link">Explore →</span>
+                <img class="service-preview cine-grade" loading="lazy"
+                     alt="Film camera on a dolly during a night shoot"
+                     src="https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=640&auto=format&fit=crop" />
+              </article>
+
+              <article class="service-row">
+                <h3 class="service-name">Post-Production</h3>
+                <p class="service-desc">We cut, grade, and mix the footage into a finished film with its own score.</p>
+                <span class="service-link">Explore →</span>
+                <img class="service-preview cine-grade" loading="lazy"
+                     alt="Color grading suite with timeline on screen"
+                     src="https://i.pinimg.com/736x/09/aa/18/09aa181f24d99912ff62ba8b6e563806.jpg" />
+              </article>
+
+              <article class="service-row">
+                <h3 class="service-name">Visual Effects</h3>
+                <p class="service-desc">We add subtle VFX and cleanup that support the story without drawing attention.</p>
+                <span class="service-link">Explore →</span>
+                <img class="service-preview cine-grade" loading="lazy"
+                     alt="Compositing workspace with layered visual effects footage"
+                     src="https://i.pinimg.com/1200x/1f/95/73/1f95735946db807d1ff5e78564921e40.jpg" />
+              </article>
+
+              <article class="service-row">
+                <h3 class="service-name">Distribution &amp; Release</h3>
+                <p class="service-desc">We master, subtitle, and package your film for festivals, cinemas, and streaming.</p>
+                <span class="service-link">Explore →</span>
+                <img class="service-preview cine-grade" loading="lazy"
+                     alt="Cinema marquee glowing at night"
+                     src="https://i.pinimg.com/1200x/3d/54/12/3d5412461b259aee9e8b7fcd8c48fb14.jpg" />
+              </article>
+            </div>
+          </div>
+        </section>
+      </main>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <p></p>
+      <span class="footer-mark"></span>
+      <div class="footer-links">
+        <a href="#"></a>
+        <a href="#"></a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

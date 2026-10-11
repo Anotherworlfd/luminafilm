@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Work | Lumina Films</title>
+  <meta name="description" content="Browse the full filmography and selected projects by Lumina Films." />
+
+  <script>
+    document.documentElement.classList.add('js');
+    (function () {
+      var stored = localStorage.getItem('theme');
+      var theme = stored || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" href="logo/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <a href="#top" class="skip-link">Skip to content</a>
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"><span class="cursor-label">View</span></div>
+
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navDrawer">
+        <span class="menu-lines" aria-hidden="true">
+          <span></span>
+          <span></span>
+        </span>
+        <span class="menu-label" id="menuLabel">MENU</span>
+      </button>
+
+      <a href="index.html" class="nav-logo">
+        <img src="logo/logo.svg" alt="Lumina" style="height:120px;width:90;">
+      </a>
+
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" aria-pressed="false">
+        <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <div class="nav-drawer" id="navDrawer" aria-hidden="true">
+    <div class="nav-drawer-inner">
+      <a href="services.html" class="nav-drawer-link">Services</a>
+      <a href="work.html" class="nav-drawer-link" aria-current="page">Work</a>
+      <a href="about.html" class="nav-drawer-link">About</a>
+      <a href="contact.html" class="nav-drawer-link">Contact</a>
+    </div>
+  </div>
+
+  <div id="smooth-wrapper">
+    <div id="smooth-content">
+
+      <main id="top">
+        <section class="work-section">
+          <div class="work-wrap">
+            <header class="work-header">
+              <h1 class="work-title">Work</h1>
+              <div class="work-sort" role="group" aria-label="Sort films">
+                <span class="work-sort-label">Sort by:</span>
+                <button type="button" class="sort-btn is-active" data-sort="newest" aria-pressed="true">Newest</button>
+                <button type="button" class="sort-btn" data-sort="az" aria-pressed="false">A-Z</button>
+              </div>
+            </header>
+
+            <div class="films-grid" id="filmsGrid" aria-label="Featured films"></div>
+
+            <section class="films-list-section" id="filmsListSection" hidden>
+              <ul class="films-list" id="filmsList"></ul>
+              <button type="button" class="show-more" id="showMore" hidden>
+                <span class="show-more-icon" aria-hidden="true">+</span>
+                <span class="show-more-label">Show more</span>
+              </button>
+            </section>
+          </div>
+        </section>
+      </main>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <p></p>
+      <span class="footer-mark"></span>
+      <div class="footer-links">
+        <a href="#"></a>
+        <a href="#"></a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="films-data.js"></script>
+  <script src="script.js"></script>
+  <script src="work.js"></script>
+</body>
+</html>

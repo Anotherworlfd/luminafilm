@@ -15,7 +15,9 @@
   gsap.registerPlugin(ScrollTrigger);
 
   let smoothScroll = null;
-  if (!prefersReduced && !isTouch) {
+  const isStandalonePage = document.querySelector('.work-section, .page-section') !== null;
+
+  if (!isStandalonePage && !prefersReduced && !isTouch) {
     const wrapper = document.querySelector('#smooth-wrapper');
     const content = document.querySelector('#smooth-content');
 
@@ -128,16 +130,27 @@
         });
       });
 
-      document.querySelectorAll('a, button, .btn, .service-row, .project-card').forEach((el) => {
-        el.addEventListener('mouseenter', () => ring.classList.add('is-hover'));
-        el.addEventListener('mouseleave', () => ring.classList.remove('is-hover'));
-      });
-      document.querySelectorAll('.project-card').forEach((el) => {
-        el.addEventListener('mouseenter', () => {
+      document.addEventListener('mouseover', (e) => {
+        const viewTarget = e.target.closest('.project-card, .grid-card');
+        if (viewTarget) {
           ring.classList.remove('is-hover');
           ring.classList.add('is-view');
-        });
-        el.addEventListener('mouseleave', () => ring.classList.remove('is-view'));
+          return;
+        }
+        const hoverTarget = e.target.closest('a, button, .btn, .service-row');
+        if (hoverTarget) {
+          ring.classList.add('is-hover');
+        }
+      });
+      document.addEventListener('mouseout', (e) => {
+        const viewTarget = e.target.closest('.project-card, .grid-card');
+        if (viewTarget && (!e.relatedTarget || !viewTarget.contains(e.relatedTarget))) {
+          ring.classList.remove('is-view');
+        }
+        const hoverTarget = e.target.closest('a, button, .btn, .service-row');
+        if (hoverTarget && (!e.relatedTarget || !hoverTarget.contains(e.relatedTarget))) {
+          ring.classList.remove('is-hover');
+        }
       });
     }
   }
@@ -242,7 +255,7 @@
     });
   }
 
-  document.querySelectorAll('a[href^="#"]').forEach((a) => {
+  document.querySelectorAll('a:not(.nav-drawer-link)[href^="#"]').forEach((a) => {
     a.addEventListener('click', (e) => {
       const href = a.getAttribute('href');
       if (href === '#') return;
@@ -590,7 +603,7 @@
   let autoplayTimer = null;
   const autoplayInterval = 5000;
 
-  
+  if (heroImageStack && heroFilmsList) {
   const preloadImage = (src) => {
     const img = new Image();
     img.src = src;
@@ -600,7 +613,7 @@
     preloadImage(film.image);
   });
 
-  // Build image stack
+
   films.forEach((film, idx) => {
     const img = document.createElement('img');
     img.src = film.image;
@@ -709,4 +722,85 @@
 
   const main = document.querySelector('main');
   if (main && !main.id) main.id = 'main';
+  } // if heroImageStack && heroFilmsList
+
+  const workGrid = document.getElementById('workGrid');
+  if (workGrid) {
+    function makeWorkImgWrapper(film) {
+      const wrap = document.createElement('div');
+      wrap.className = 'grid-img-wrap';
+      wrap.style.aspectRatio = film.ratio || '4/5';
+
+      const img = document.createElement('img');
+      img.className = 'grid-img';
+      img.alt = film.title;
+      img.loading = 'lazy';
+
+      function onError() {
+        img.removeEventListener('error', onError);
+        wrap.classList.add('is-placeholder');
+        img.remove();
+      }
+      if (film.image) {
+        img.addEventListener('error', onError);
+        img.src = film.image;
+        wrap.appendChild(img);
+      } else {
+        wrap.classList.add('is-placeholder');
+      }
+      return wrap;
+    }
+
+    function makeWorkCard(film) {
+      const a = document.createElement('a');
+      a.className = 'grid-card';
+      a.href = 'films/' + film.id + '.html';
+      a.appendChild(makeWorkImgWrapper(film));
+
+      const year = document.createElement('span');
+      year.className = 'grid-year';
+      year.textContent = film.year;
+
+      const title = document.createElement('span');
+      title.className = 'grid-title';
+      title.textContent = film.title;
+
+      a.appendChild(year);
+      a.appendChild(title);
+      return a;
+    }
+
+    function getWorkColumnCount() {
+      const w = window.innerWidth;
+      if (w > 900) return 3;
+      if (w >= 520) return 2;
+      return 1;
+    }
+
+    function buildWorkGrid() {
+      if (!window.FILMS) return;
+      workGrid.innerHTML = '';
+      const cols = getWorkColumnCount();
+      for (let c = 0; c < cols; c++) {
+        const col = document.createElement('div');
+        col.className = 'grid-col';
+        for (let i = c; i < window.FILMS.length; i += cols) {
+          col.appendChild(makeWorkCard(window.FILMS[i]));
+        }
+        workGrid.appendChild(col);
+      }
+    }
+
+    let workResizeTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(workResizeTimer);
+      workResizeTimer = setTimeout(buildWorkGrid, 150);
+    });
+
+    if (window.FILMS) {
+      buildWorkGrid();
+    } else {
+      window.addEventListener('DOMContentLoaded', buildWorkGrid);
+    }
+  }
 })();
