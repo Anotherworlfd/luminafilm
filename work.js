@@ -16,6 +16,7 @@
 
   var sortMode = 'newest';
   var listCount = LIST_STEP;
+  var currentCols = 0;
 
   function sortBy(mode) {
     var films = window.FILMS.slice();
@@ -43,6 +44,12 @@
     img.className = 'grid-img';
     img.alt = film.title;
     img.loading = 'lazy';
+    img.decoding = 'async';
+    img.srcset = 'images/films/' + film.id + '-480.webp 480w, images/films/' + film.id + '-960.webp 960w, images/films/' + film.id + '-1440.webp 1440w';
+    img.sizes = '(max-width: 519px) 100vw, (max-width: 900px) 50vw, 33vw';
+    img.src = 'images/films/' + film.id + '-960.webp';
+    img.width = 960;
+    img.height = film.ratio === '16/10' ? 600 : (film.ratio === '3/2' ? 640 : 1200);
 
     function onError() {
       img.removeEventListener('error', onError);
@@ -51,7 +58,6 @@
     }
     if (film.image) {
       img.addEventListener('error', onError);
-      img.src = film.image;
       wrap.appendChild(img);
     } else {
       wrap.classList.add('is-placeholder');
@@ -88,6 +94,7 @@
   function buildGrid(films, cols) {
     grid.innerHTML = '';
     var used = films.slice(0, GRID_COUNT);
+    var fragment = document.createDocumentFragment();
 
     for (var c = 0; c < cols; c++) {
       var col = document.createElement('div');
@@ -95,8 +102,9 @@
       for (var i = c; i < used.length; i += cols) {
         col.appendChild(makeCard(used[i]));
       }
-      grid.appendChild(col);
+      fragment.appendChild(col);
     }
+    grid.appendChild(fragment);
   }
 
   function makeListRow(film) {
@@ -121,9 +129,11 @@
     listEl.innerHTML = '';
     var remaining = films.slice(GRID_COUNT);
     var shown = remaining.slice(0, count);
+    var fragment = document.createDocumentFragment();
     shown.forEach(function (film) {
-      listEl.appendChild(makeListRow(film));
+      fragment.appendChild(makeListRow(film));
     });
+    listEl.appendChild(fragment);
 
     var hasMore = remaining.length > count;
     listSection.hidden = remaining.length === 0;
@@ -131,9 +141,13 @@
     listCount = count;
   }
 
-  function render() {
+  function render(forceGridRebuild) {
     var films = sortBy(sortMode);
-    buildGrid(films, columnCount());
+    var cols = columnCount();
+    if (forceGridRebuild || cols !== currentCols || !grid.hasChildNodes()) {
+      currentCols = cols;
+      buildGrid(films, currentCols);
+    }
     buildList(films, listCount);
   }
 
@@ -157,7 +171,7 @@
       });
       sortMode = btn.getAttribute('data-sort');
       listCount = LIST_STEP;
-      render();
+      render(true);
     });
   });
 
@@ -166,13 +180,29 @@
     buildList(films, listCount + LIST_STEP);
   });
 
+  // Rebuild columns only when column count changes
+  var mqWide = window.matchMedia('(min-width: 901px)');
+  var mqMid = window.matchMedia('(min-width: 520px)');
+  function checkCols() {
+    var cols = columnCount();
+    if (cols !== currentCols) {
+      currentCols = cols;
+      buildGrid(sortBy(sortMode), currentCols);
+    }
+  }
+  if (mqWide.addEventListener) {
+    mqWide.addEventListener('change', checkCols);
+    mqMid.addEventListener('change', checkCols);
+  } else if (mqWide.addListener) {
+    mqWide.addListener(checkCols);
+    mqMid.addListener(checkCols);
+  }
+
   var resizeTimer = null;
   window.addEventListener('resize', function () {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function () {
-      render();
-    }, 150);
-  });
+    resizeTimer = setTimeout(checkCols, 150);
+  }, { passive: true });
 
-  render();
+  render(true);
 })();

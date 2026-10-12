@@ -6,10 +6,10 @@
 
   
   const films = [
-    { id: 0, title: 'Aftersun', year: '2022', image: 'https://wallpapercave.com/wp/wp11884121.jpg' },
-    { id: 1, title: 'Past Lives', year: '2023', image: 'https://wallpapercave.com/wp/wp12433074.jpg' },
-    { id: 2, title: 'Marty Supreme', year: '2025', image: 'https://wallpapercave.com/wp/wp16080634.jpg' },
-    { id: 3, title: 'Project Hail Mary', year: '2026', image: 'https://wallpapercave.com/wp/wp16563818.webp' },
+    { id: 0, title: 'Aftersun', year: '2022', image: 'images/hero/aftersun.webp' },
+    { id: 1, title: 'Past Lives', year: '2023', image: 'images/hero/past-lives.webp' },
+    { id: 2, title: 'Marty Supreme', year: '2025', image: 'images/hero/marty-supreme.webp' },
+    { id: 3, title: 'Project Hail Mary', year: '2026', image: 'images/hero/project-hail-mary.webp' },
   ];
 
   gsap.registerPlugin(ScrollTrigger);
@@ -100,14 +100,10 @@
     if (dot && ring) {
       document.body.classList.add('cursor-active');
 
-      let mouseX = 0, mouseY = 0;
-      let ringX = 0, ringY = 0;
-      let dotX = 0, dotY = 0;
-
-      document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-      });
+      let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+      let ringX = mouseX, ringY = mouseY;
+      let dotX = mouseX, dotY = mouseY;
+      let cursorRaf = null;
 
       function animateCursor() {
         dotX += (mouseX - dotX) * 0.35;
@@ -115,12 +111,24 @@
         ringX += (mouseX - ringX) * 0.12;
         ringY += (mouseY - ringY) * 0.12;
 
-        dot.style.transform = `translate(${dotX}px, ${dotY}px) translate(-50%, -50%)`;
-        ring.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
+        dot.style.transform = `translate3d(${dotX}px, ${dotY}px, 0) translate(-50%, -50%)`;
+        ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
 
-        requestAnimationFrame(animateCursor);
+        const dist = Math.abs(mouseX - ringX) + Math.abs(mouseY - ringY) + Math.abs(mouseX - dotX) + Math.abs(mouseY - dotY);
+        if (dist > 0.15) {
+          cursorRaf = requestAnimationFrame(animateCursor);
+        } else {
+          cursorRaf = null;
+        }
       }
-      animateCursor();
+
+      document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        if (!cursorRaf) {
+          cursorRaf = requestAnimationFrame(animateCursor);
+        }
+      }, { passive: true });
 
       document.querySelectorAll('.hero-headline').forEach(el => {
         const textNodes = el.querySelectorAll('.word-inner');
@@ -246,15 +254,18 @@
     if (firstLink) firstLink.focus();
   }
 
-  function updateNav() {
-    if (window.scrollY > 60) {
-      nav.classList.add('is-scrolled');
-    } else {
-      nav.classList.remove('is-scrolled');
-    }
+  if (nav) {
+    const topSentinel = document.getElementById('top') || document.body;
+    const navScrollObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          nav.classList.toggle('is-scrolled', !entry.isIntersecting);
+        });
+      },
+      { rootMargin: '-60px 0px 0px 0px', threshold: 0 }
+    );
+    navScrollObserver.observe(topSentinel);
   }
-  window.addEventListener('scroll', updateNav, { passive: true });
-  updateNav();
 
   // IntersectionObserver toggles .nav--on-hero while the hero is behind the navbar
   const heroSection = document.querySelector('.hero');
@@ -407,13 +418,20 @@
     const quickY = workCards.map((card) =>
       gsap.quickTo(card, 'y', { duration: 1.2, ease: 'power2.out' }));
 
+    let workMouseRaf = null;
     window.addEventListener('mousemove', (e) => {
-      const px = (e.clientX / window.innerWidth) * 2 - 1;
-      const py = (e.clientY / window.innerHeight) * 2 - 1;
-      workCards.forEach((card, i) => {
-        const d = workDepth(i);
-        quickX[i](-px * 22 * d);
-        quickY[i](-py * 18 * d);
+      const clientX = e.clientX;
+      const clientY = e.clientY;
+      if (workMouseRaf) return;
+      workMouseRaf = requestAnimationFrame(() => {
+        workMouseRaf = null;
+        const px = (clientX / window.innerWidth) * 2 - 1;
+        const py = (clientY / window.innerHeight) * 2 - 1;
+        workCards.forEach((card, i) => {
+          const d = workDepth(i);
+          quickX[i](-px * 22 * d);
+          quickY[i](-py * 18 * d);
+        });
       });
     }, { passive: true });
   } else {
@@ -639,98 +657,180 @@
   const autoplayInterval = 5000;
 
   if (heroImageStack && heroFilmsList) {
-  const preloadImage = (src) => {
-    const img = new Image();
-    img.src = src;
-    return img;
-  };
-  films.forEach((film) => {
-    preloadImage(film.image);
-  });
-
-
-  films.forEach((film, idx) => {
-    const img = document.createElement('img');
-    img.src = film.image;
-    img.alt = film.title;
-    img.className = `hero-image ${idx === 0 ? 'is-active' : ''}`;
-    img.loading = idx === 0 ? 'eager' : 'lazy';
-    heroImageStack.appendChild(img);
-  });
-
- 
-  films.forEach((film, idx) => {
-    const li = document.createElement('li');
-    li.setAttribute('aria-current', idx === 0 ? 'true' : 'false');
-    const a = document.createElement('a');
-    a.href = `film.html?id=${film.id}`;
-    a.textContent = film.title;
-    const sup = document.createElement('sup');
-    sup.textContent = film.year;
-    a.appendChild(sup);
-    li.appendChild(a);
-    heroFilmsList.appendChild(li);
-  });
-
-  function setActive(idx) {
-    const imgs = heroImageStack.querySelectorAll('.hero-image');
-    const lis = heroFilmsList.querySelectorAll('li');
-
-    imgs[currentFilmIdx]?.classList.remove('is-active');
-    lis[currentFilmIdx]?.setAttribute('aria-current', 'false');
-
-    currentFilmIdx = idx % films.length;
-    imgs[currentFilmIdx]?.classList.add('is-active');
-    lis[currentFilmIdx]?.setAttribute('aria-current', 'true');
-  }
-
-  function startAutoplay() {
-    if (prefersReduced) return;
-    if (autoplayTimer) clearInterval(autoplayTimer);
-    autoplayTimer = setInterval(() => {
-      setActive(currentFilmIdx + 1);
-    }, autoplayInterval);
-  }
-
-  function stopAutoplay() {
-    if (autoplayTimer) {
-      clearInterval(autoplayTimer);
-      autoplayTimer = null;
-    }
-  }
-
-  
-  startAutoplay();
-
-  document.addEventListener('visibilitychange', () => {
-    document.hidden ? stopAutoplay() : startAutoplay();
-  });
-
- 
-  const filmList = document.getElementById('heroFilms');
-  if (filmList) {
-    filmList.addEventListener('mouseenter', stopAutoplay);
-    filmList.addEventListener('mouseleave', startAutoplay);
-
-    heroFilmsList.querySelectorAll('a').forEach((link, idx) => {
-      link.addEventListener('click', (e) => {
-        if (!isTouch) {
-          e.preventDefault();
-          setActive(idx);
-          startAutoplay();
-        }
-      });
-      link.addEventListener('focus', () => {
-        if (!isTouch) {
-          stopAutoplay();
-          setActive(idx);
-        }
-      });
-      link.addEventListener('blur', () => {
-        if (!isTouch) startAutoplay();
-      });
+    const imgFrag = document.createDocumentFragment();
+    films.forEach((film, idx) => {
+      const img = document.createElement('img');
+      img.alt = film.title;
+      img.className = `hero-image ${idx === 0 ? 'is-active' : ''}`;
+      img.decoding = 'async';
+      img.width = 1920;
+      img.height = 1280;
+      if (idx === 0) {
+        img.src = film.image;
+        img.loading = 'eager';
+        img.fetchPriority = 'high';
+      } else {
+        img.dataset.src = film.image;
+        img.loading = 'lazy';
+      }
+      imgFrag.appendChild(img);
     });
-  }
+    heroImageStack.appendChild(imgFrag);
+
+    const listFrag = document.createDocumentFragment();
+    films.forEach((film, idx) => {
+      const li = document.createElement('li');
+      li.setAttribute('aria-current', idx === 0 ? 'true' : 'false');
+      const a = document.createElement('a');
+      a.href = `film.html?id=${film.id}`;
+      a.textContent = film.title;
+      const sup = document.createElement('sup');
+      sup.textContent = film.year;
+      a.appendChild(sup);
+      li.appendChild(a);
+      listFrag.appendChild(li);
+    });
+    heroFilmsList.appendChild(listFrag);
+
+    const preloadImageAt = (idx) => {
+      const target = heroImageStack.children[idx];
+      if (target && !target.src && target.dataset.src) {
+        target.src = target.dataset.src;
+        if (target.decode) target.decode().catch(() => {});
+      }
+    };
+
+    if ('requestIdleCallback' in window) {
+      window.addEventListener('load', () => {
+        requestIdleCallback(() => preloadImageAt(1), { timeout: 2000 });
+      });
+    } else {
+      window.addEventListener('load', () => setTimeout(() => preloadImageAt(1), 1000));
+    }
+
+    function setActive(idx) {
+      const imgs = heroImageStack.querySelectorAll('.hero-image');
+      const lis = heroFilmsList.querySelectorAll('li');
+      const nextIdx = idx % films.length;
+      if (nextIdx === currentFilmIdx) return;
+
+      const currentImg = imgs[currentFilmIdx];
+      const targetImg = imgs[nextIdx];
+
+      if (targetImg && !targetImg.src && targetImg.dataset.src) {
+        targetImg.src = targetImg.dataset.src;
+      }
+
+      const applyTransition = () => {
+        if (currentImg) currentImg.style.willChange = 'opacity, transform';
+        if (targetImg) targetImg.style.willChange = 'opacity, transform';
+
+        imgs[currentFilmIdx]?.classList.remove('is-active');
+        lis[currentFilmIdx]?.setAttribute('aria-current', 'false');
+
+        currentFilmIdx = nextIdx;
+        targetImg?.classList.add('is-active');
+        lis[currentFilmIdx]?.setAttribute('aria-current', 'true');
+
+        setTimeout(() => {
+          if (currentImg) currentImg.style.willChange = '';
+          if (targetImg) targetImg.style.willChange = '';
+        }, 850);
+
+        preloadImageAt((currentFilmIdx + 1) % films.length);
+      };
+
+      if (targetImg) {
+        if (targetImg.complete) {
+          if (targetImg.decode) {
+            targetImg.decode().then(applyTransition).catch(applyTransition);
+          } else {
+            applyTransition();
+          }
+        } else {
+          targetImg.onload = () => {
+            if (targetImg.decode) {
+              targetImg.decode().then(applyTransition).catch(applyTransition);
+            } else {
+              applyTransition();
+            }
+          };
+          targetImg.onerror = applyTransition;
+        }
+      } else {
+        applyTransition();
+      }
+    }
+
+    function startAutoplay() {
+      if (prefersReduced) return;
+      if (autoplayTimer) clearInterval(autoplayTimer);
+      autoplayTimer = setInterval(() => {
+        setActive(currentFilmIdx + 1);
+      }, autoplayInterval);
+    }
+
+    function stopAutoplay() {
+      if (autoplayTimer) {
+        clearInterval(autoplayTimer);
+        autoplayTimer = null;
+      }
+    }
+
+    let isHeroInView = true;
+    let isTabVisible = !document.hidden;
+    function updateAutoplayState() {
+      if (isHeroInView && isTabVisible) {
+        startAutoplay();
+      } else {
+        stopAutoplay();
+      }
+    }
+
+    const heroSectionEl = document.querySelector('.hero');
+    if (heroSectionEl) {
+      const heroVisibilityObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          isHeroInView = entry.isIntersecting;
+          updateAutoplayState();
+        });
+      }, { threshold: 0.1 });
+      heroVisibilityObserver.observe(heroSectionEl);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      isTabVisible = !document.hidden;
+      updateAutoplayState();
+    });
+
+    startAutoplay();
+
+    const filmList = document.getElementById('heroFilms');
+    if (filmList) {
+      filmList.addEventListener('mouseenter', stopAutoplay);
+      filmList.addEventListener('mouseleave', () => {
+        if (isHeroInView && isTabVisible) startAutoplay();
+      });
+
+      heroFilmsList.querySelectorAll('a').forEach((link, idx) => {
+        link.addEventListener('click', (e) => {
+          if (!isTouch) {
+            e.preventDefault();
+            setActive(idx);
+            if (isHeroInView && isTabVisible) startAutoplay();
+          }
+        });
+        link.addEventListener('focus', () => {
+          if (!isTouch) {
+            stopAutoplay();
+            setActive(idx);
+          }
+        });
+        link.addEventListener('blur', () => {
+          if (!isTouch && isHeroInView && isTabVisible) startAutoplay();
+        });
+      });
+    }
 
   // Scroll to next section
   const heroScroll = document.querySelector('.hero-scroll');
