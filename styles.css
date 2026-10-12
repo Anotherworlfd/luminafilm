@@ -130,14 +130,12 @@ ul { list-style: none; }
   border-radius: 2px;
 }
 
+/* will-change omitted on #smooth-content to avoid large layer allocation */
 #smooth-wrapper {
   position: fixed;
   inset: 0;
   overflow: hidden;
   z-index: 1;
-}
-#smooth-content {
-  /* will-change removed to avoid large layer allocation */
 }
 @media (hover: none), (pointer: coarse) {
   #smooth-wrapper {
