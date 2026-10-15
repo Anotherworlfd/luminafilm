@@ -255,16 +255,19 @@
   }
 
   if (nav) {
-    const topSentinel = document.getElementById('top') || document.body;
-    const navScrollObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          nav.classList.toggle('is-scrolled', !entry.isIntersecting);
-        });
-      },
-      { rootMargin: '-60px 0px 0px 0px', threshold: 0 }
-    );
-    navScrollObserver.observe(topSentinel);
+    let navScrolled = false;
+    let navRaf = null;
+    const syncNav = () => {
+      navRaf = null;
+      const scrolled = (window.scrollY || window.pageYOffset) > 60;
+      if (scrolled === navScrolled) return;
+      navScrolled = scrolled;
+      nav.classList.toggle('is-scrolled', scrolled);
+    };
+    window.addEventListener('scroll', () => {
+      if (!navRaf) navRaf = requestAnimationFrame(syncNav);
+    }, { passive: true });
+    syncNav();
   }
 
   // IntersectionObserver toggles .nav--on-hero while the hero is behind the navbar
